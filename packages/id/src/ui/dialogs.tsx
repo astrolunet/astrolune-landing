@@ -92,7 +92,7 @@ export function IdProxyModal({
   const [rotation, setRotation] = useState<ProxyRotation>(
     endpoint?.rotation ?? "per-request",
   );
-  const [region, setRegion] = useState(endpoint?.region ?? REGIONS[0].id);
+  const [region, setRegion] = useState<string>(endpoint?.region ?? REGIONS[0].id);
   const [quotaGb, setQuotaGb] = useState(PROXY_TRAFFIC[1].gb);
   const [label, setLabel] = useState("");
   const [shown, setShown] = useState(false);
@@ -405,7 +405,7 @@ export function IdBucketDrawer({
   const strings = useIdStrings();
   const { create } = useShare();
   const [label, setLabel] = useState("");
-  const [region, setRegion] = useState(REGIONS[0].id);
+  const [region, setRegion] = useState<string>(REGIONS[0].id);
   const [quotaGb, setQuotaGb] = useState(SHARE_QUOTAS[1].gb);
 
   useEffect(() => {
