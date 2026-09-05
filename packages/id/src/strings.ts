@@ -583,7 +583,7 @@ export function resolveStrings(
   override?: StringsOverride,
 ): Strings {
   const base = LOCALES[locale] ?? en;
-  return override ? merge(base as Strings, override) : (base as Strings);
+  return override ? (merge(base as Strings, override) as Strings) : (base as Strings);
 }
 
 function merge<T>(base: T, patch: DeepPartial<T>): T {
