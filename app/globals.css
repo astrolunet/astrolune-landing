@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
-/* `@astrolune/id` lives in `packages/id` and is compiled from source, so
+/* `@astrolune/id` is installed from the adjacent repository and compiled from source, so
    Tailwind has to be pointed at it explicitly — it only scans below the CSS
    file's own root by default, and every class in the package would otherwise be
    treed away. `theme.css` is the keyframes-only half of the package stylesheet;
    `tokens.css` is deliberately *not* imported, because the tokens below are the
    canonical ones and two `@theme` blocks would fight over the font stacks. */
-@import "../packages/id/theme.css";
-@source "../packages/id/src";
+@import "@astrolune/id/theme.css";
+@source "../node_modules/@astrolune/id/src";
 
 /* ============================================================
    ASTROLUNE — design tokens
