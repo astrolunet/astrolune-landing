@@ -265,7 +265,7 @@ export function IdProxyModal({
             <IdSegmented
               label={strings.proxy.modal.quotaLabel}
               value={String(quotaGb)}
-              onChange={(value) => setQuotaGb(Number(value))}
+              onChange={(value) => setQuotaGb(Number(value) as typeof quotaGb)}
               options={quotaOptions}
             />
             <IdField
@@ -460,7 +460,7 @@ export function IdBucketDrawer({
         <IdSegmented
           label={strings.share.quotaLabel}
           value={String(quotaGb)}
-          onChange={(value) => setQuotaGb(Number(value))}
+          onChange={(value) => setQuotaGb(Number(value) as typeof quotaGb)}
           options={SHARE_QUOTAS.map((quota) => ({
             value: String(quota.gb),
             label: quota.gb >= 1024 ? `${quota.gb / 1024} TB` : `${quota.gb} GB`,
