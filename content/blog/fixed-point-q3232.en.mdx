@@ -1,0 +1,48 @@
+---
+title: "Fixed point without tears: Q32.32"
+excerpt: "How the core represents fractional weights with integer arithmetic only — the layout, the rounding rules, and the three operations that are easy to get wrong."
+date: "2026-01-27"
+category: "guides"
+tag: "Guide"
+readingMinutes: 6
+featured: false
+image: "/blog/fixed-point-q3232.svg"
+---
+
+Floating point is banned from the consensus path for one reason: two honest nodes must agree on the last bit, across compilers, flags and hardware. That leaves fixed point — and once you commit to it, most of the mystery disappears. This post is the guide to Q32.32 as the core actually uses it.
+
+![Q32.32 — one 64-bit word split into an integer half and a fraction half](/blog/diagram-q3232.svg)
+
+## The layout
+
+A `al_q32` is a plain `uint64_t`. The top 32 bits are the whole part, the bottom 32 bits are the fraction, so one unit of weight is stored as `1 << 32`. No struct, no tag, no boxing — just an integer and a convention.
+
+```c
+typedef uint64_t al_q32;
+
+#define AL_Q32_ONE  ((al_q32)1ULL << 32)
+#define AL_Q32_HALF (AL_Q32_ONE >> 1)
+
+/* double -> q32 (test fixtures only; never on the hot path) */
+al_q32 al_q32_from(double d);
+```
+
+## Multiplication is the only tricky one
+
+Multiplying two Q32.32 values produces 64.64 bits, and the answer must be brought back to 32.32 by shifting right through 96 bits of intermediate width. In practice the core computes `(a * b) >> 32` over `unsigned __int128`, which every supported toolchain provides, and truncates rather than rounds.
+
+Truncation is a policy choice, not laziness: rounding would need a rule for ties, ties need a convention, conventions differ between platforms. Truncating always loses at most one unit in the last place, in the same direction, on every node.
+
+| Operation | Implementation | Error |
+| --- | --- | --- |
+| add / sub | native u64 | exact or overflow-checked |
+| mul | `(u128)a * b >> 32` | ≤ 1 ulp, always down |
+| min / cap | native compare | exact |
+
+## Three ways to get it wrong
+
+- **Mixing raw integers with Q32.32.** A plain count is not a weight; wrap it explicitly with a shift or do not touch it.
+- **Reordering multiplies.** The product is associative but truncation is not: `mul(mul(a, b), c)` can differ from `mul(a, mul(b, c))` by an ulp. The core fixes one order per formula and pins it in tests.
+- **Dividing at all.** Division exists in exactly two places, both guarded. If you find yourself dividing, you probably wanted a reciprocal multiply.
+
+The reward calculator on this site runs the same operations in JavaScript with BigInt, which is why its output matches a validator's bit for bit. Determinism is not a property you hope for — it is one you refuse to give up at every step.

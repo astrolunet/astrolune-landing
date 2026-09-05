@@ -1,0 +1,25 @@
+---
+title: "PoTB v2: the consensus core is written and tested"
+excerpt: "The complete weight formula, committee selection with partial rotation, commit-reveal seeds and median-relative slashing now pass roughly 29,800 assertions — all as pure, clock-free functions."
+date: "2026-01-12"
+category: "consensus"
+tag: "PoTB v2"
+readingMinutes: 6
+featured: true
+image: "/news/potb-v2-consensus-core.svg"
+---
+
+The first step of the roadmap is the consensus arithmetic, and it is done in the sense that matters: every scoring function is pure, reads no clock, and is exercised by the test suite rather than trusted. Node weight is the product of four factors, and each one now has an implementation that the tests pin to its specification.
+
+## What landed
+
+- The full weight formula — `min(TBS, cap) × min(TGW, cap) × NDM × COD`.
+- Committee selection by weighted sampling without replacement, driven by a hash chain from the epoch seed so every node draws the identical committee.
+- Partial rotation of roughly a tenth of the committee per block, so the set turns over in ten blocks without a full reshuffle.
+- Slashing judged against the network median for the same period, so a shared incident does not single out the innocent.
+
+The protocol day is derived from block height, never from the system clock. That single decision is why the whole layer can be driven from a slider on the home page: the same function that scores a real node scores the one you invent by dragging a control.
+
+> Where a header and a document disagree, the header is correct. It is what nodes actually run, so the document is the bug.
+
+That convention is load-bearing. The nine places where the current code and the written specification diverge are listed in the implementation status rather than quietly reconciled, because a reader deserves to know which one is authoritative.

@@ -1,0 +1,18 @@
+---
+title: "Why there is no floating point anywhere near consensus"
+excerpt: "Two honest nodes must agree on the last bit. Floating point cannot promise that across compilers and hardware, so the core is integer-only end to end."
+date: "2025-12-19"
+category: "research"
+tag: "Determinism"
+readingMinutes: 4
+featured: false
+image: "/news/why-no-floating-point.svg"
+---
+
+Determinism is not a nice-to-have for a blockchain; it is the property that lets two machines that have never met agree on a result. Floating point quietly breaks it: rounding, fused multiply-add and compiler flags can each move the last bit, and a chain that disagrees in the last bit is a chain that forks.
+
+So amounts are unsigned 64-bit integers with nine decimals, weights are computed in a fixed-point Q32.32 representation, and the virtual machine's instruction set contains no floating-point opcode at all. Deploy-time validation rejects one if it somehow appears.
+
+- Balances need no wide arithmetic — a u64 with nine decimals reaches a representational ceiling near 1.8 × 10¹⁰ whole coins.
+- Scoring uses fixed-point, so the weight calculator in your browser and a validator in a datacenter compute the same number.
+- The metering rules out anything a clock or an allocator could influence.

@@ -1,0 +1,40 @@
+---
+title: "A committee that turns over in ten blocks"
+excerpt: "One hundred seats, ten percent redrawn per block, quorum computed from the seats actually filled. Why partial rotation beats both a fixed committee and a full reshuffle."
+date: "2026-01-13"
+category: "protocol"
+tag: "Protocol"
+readingMinutes: 6
+featured: false
+image: "/blog/committee-rotation.svg"
+---
+
+Finality in PoTB comes from a committee of one hundred, and the committee never survives intact for long: every block replaces roughly a tenth of its membership. Ten blocks later, no seat remembers who held it before the rotation began.
+
+## The draw
+
+Selection is weighted sampling without replacement over the validator set, driven by a hash chain anchored in the epoch seed. Every node runs the identical draw and gets the identical committee — there is nothing to negotiate and no message to exchange about membership.
+
+<Callout title="Why without replacement">
+Sampling with replacement could seat one node several times, which multiplies its vote by luck. Without replacement a committee is a set of a hundred distinct identities, and the weight distribution inside it is the honest one.
+</Callout>
+
+## Rotation as a moving boundary
+
+A tenth of the seats turn over each block, chosen so the departing set is scattered across the ring rather than contiguous. Three consequences fall out:
+
+- Capture is a *rate* problem, not a snapshot problem. An adversary must hold influence across many consecutive draws to keep a majority, while honest nodes keep entering.
+- Network load stays bounded. Replacing all hundred seats per block would multiply vote traffic for zero additional safety.
+- A new validator waits at most ten blocks to sit — and no longer than that, ever.
+
+<PostImage small src="/blog/diagram-rotation.svg" caption="One hundred seats; the highlighted ten leave this block." />
+
+## Quorum from the seats that exist
+
+Quorum is `⌊2n/3⌋ + 1` signatures computed from the seats actually filled, not from the nominal hundred. If only ninety-seven nodes are seated, finality needs sixty-five votes — the Byzantine threshold travels with reality instead of assuming an empty chair can sign.
+
+The epoch seed underneath the draw is commit-reveal: participants commit a hash first and reveal the preimage after, then everything is mixed order-independently. Whoever reveals last cannot bias the draw by choosing whether to reveal at all — their silence costs them their bond-share, not the protocol its fairness.
+
+## What this buys
+
+No single property here is exotic. Weighted sampling, partial rotation, threshold signatures and commit-reveal are each decades old; the design contribution is stacking them so no layer has to be trusted for another to work. The specification lists what is proven, what is argued and what is merely cheap to attack — in that order.

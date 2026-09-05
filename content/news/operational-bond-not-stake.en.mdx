@@ -1,0 +1,16 @@
+---
+title: "The operational bond is not stake"
+excerpt: "A node may post funds as public evidence of infrastructure spend. It affects one reward bucket and carries no consensus weight — that is the line that keeps PoTB from becoming Proof of Stake."
+date: "2025-11-06"
+category: "consensus"
+tag: "Economics"
+readingMinutes: 3
+featured: false
+image: "/news/operational-bond-not-stake.svg"
+---
+
+The block reward splits three ways: 60% equally across the committee, 25% by earned weight, and 15% by the operational bond. It is the last bucket that invites the question, so the specification answers it directly: the bond buys a share of that 15% and nothing else. It does not enter the weight formula.
+
+That distinction is the whole design. If capital could buy weight, PoTB would be Proof of Stake wearing a different name. Because it cannot, the bond is only ever evidence — a public signal that an operator's infrastructure spend is serious — and never a claim on consensus.
+
+> The bond does not increase consensus weight. That is what keeps this from being Proof of Stake wearing a different name.

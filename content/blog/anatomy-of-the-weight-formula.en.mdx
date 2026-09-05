@@ -1,0 +1,54 @@
+---
+title: "Anatomy of the weight formula"
+excerpt: "min(TBS, cap) × min(TGW, 1) × NDM × COD looks terse until you ask why it multiplies. A walk through all four factors, their caps, and what each one is pricing."
+date: "2026-03-03"
+category: "engineering"
+tag: "Consensus"
+readingMinutes: 8
+featured: true
+image: "/blog/weight-formula.svg"
+---
+
+Every scoring function in the PoTB core is pure: no clock, no allocator, no platform-dependent behaviour anywhere on the path from block height to a node's final weight. That constraint is what makes the formula worth writing about — because it can be reproduced exactly, by anyone, including the calculator embedded on this site's home page.
+
+This post walks through the four factors one at a time, then explains why the whole thing is a product rather than a sum.
+
+<Callout title="The one-line version">
+Weight is a product of four factors. Because they multiply, collapsing any single factor collapses all of it — which is what makes each factor a barrier instead of a bonus.
+</Callout>
+
+## Why multiplication, not addition
+
+A sum rewards specialization. A node could buy its way to influence by maxing one input while ignoring the rest — run forever with zero correctness, or gather attestations from a single datacenter. Under multiplication there is no such trade: zero in any factor means zero weight, and weakness anywhere discounts strength everywhere else.
+
+The caps then bound how far money can stretch the factors that time cannot fix.
+
+```c
+/* The whole model in four lines — Q32.32 fixed point throughout */
+al_q32 w = al_q32_min(tbs, AL_TBS_CAP);
+w = al_q32_min(al_q32_mul(w, tgw), AL_Q32_ONE);
+w = al_q32_mul(w, ndm);
+w = al_q32_mul(w, cod);
+```
+
+## TBS — time you cannot fast-forward
+
+The Time-Behavior Score is `ln(1 + d × c)` over protocol days `d` and correctness `c`, plus a loyalty term past one year. The logarithm is doing quiet work: early days count a lot, later days count steadily less, so a decade-old node is trusted but not uncatchable. Correctness enters multiplicatively inside the argument — a year of uptime at 60% correctness scores less than a month at 100%.
+
+Protocol days derive from block height, never from a wall clock. Two nodes in different hemispheres compute the same day counter from the same chain, which is why the score is reproducible and why nothing in this section needed a timestamp.
+
+## TGW — the graph as a witness
+
+Trust Graph Weight runs SybilRank over attestation edges, then discounts by temporal dispersion: attestations that arrived bunched together look orchestrated and are priced as such. Once per epoch, the protocol pairs every node with a peer it has *no* edge to and asks a question only an honest operator answers well. The challenge exists because a graph you fully control should not be the only evidence about you.
+
+## NDM and COD — pricing geography and correlation
+
+Network diversity is a soft multiplier over autonomous-system spread: a hundred nodes behind one ASN are priced as what they are. Cluster dampening is subtler — weak statistical signals of common ownership (similar uptime rhythms, adjacent registration windows, partial ASN overlap) suppress the *joint* weight of the group, so hiding one node does not rescue its siblings.
+
+<PostImage src="/blog/diagram-weights.svg" caption="Four factors converge into one number; the caps apply before the product." />
+
+## What the caps are for
+
+`min(TBS, 10)` and `min(TGW, 1)` are hard ceilings, not tuning knobs. The first says tenure saturates; the second says no graph, however well-built, may outweigh the time-and-behavior half of the model. Together they express the design's actual claim: influence converges toward what long, correct operation earns — and away from anything purchasable in a afternoon.
+
+The honest limitations are written down where they belong, in the consensus page and the specification: non-domination is argued, not proven, and both the graph and the dampener are heuristics. Read those sections as part of this one.

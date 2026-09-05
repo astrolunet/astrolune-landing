@@ -1,0 +1,32 @@
+---
+title: "Trocto и Regol: два уровня одной системы"
+excerpt: "Безопасный по умолчанию высокоуровневый язык, компилирующийся в нижний уровень, который тоже можно писать руками, — как Solidity с Yul или Move с Move-IR."
+date: "2025-12-04"
+category: "ecosystem"
+tag: "Languages"
+readingMinutes: 5
+featured: false
+image: "/news/trocto-regol-two-tiers.svg"
+---
+
+Astrolune поставляет два языка, но это одна система. На Trocto пишут большинство контрактов; компилятор закрывает распространённые классы уязвимостей — переполнение, реентрантность, непроверенные вызовы — до того, как они дойдут до байткода. Regol — уровень ниже, и он же промежуточное представление, поэтому от автора, которому нужен контроль, ничего не скрыто.
+
+```rust
+contract Token {
+  state {
+    balances: map<address, u64>,
+    total: u64,
+  }
+
+  pub fn transfer(to: address, amount: u64) -> Result<(), Error> {
+    let from = ctx.sender();
+    require(balances[from] >= amount, Error::Insufficient);
+    balances[from] -= amount;
+    balances[to]   += amount;
+    emit Transfer { from, to, amount };
+    Ok(())
+  }
+}
+```
+
+Третий язык, Kreep, рассматривали и отклонили. Полная спецификация Trocto — оставшаяся часть работы над языком, и она заблокирована тем же вопросом «аккаунт против ресурса», что блокирует модель состояния.

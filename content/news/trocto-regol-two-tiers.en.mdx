@@ -1,0 +1,32 @@
+---
+title: "Trocto and Regol: two tiers of one system"
+excerpt: "A safe-by-default high-level language that compiles into a low-level tier you can also write by hand — the same relationship Solidity has with Yul, or Move with Move-IR."
+date: "2025-12-04"
+category: "ecosystem"
+tag: "Languages"
+readingMinutes: 5
+featured: false
+image: "/news/trocto-regol-two-tiers.svg"
+---
+
+Astrolune ships two languages, but they are one system. Trocto is where most contracts are written; the compiler closes the common vulnerability classes — overflow, reentrancy, unchecked calls — before they reach bytecode. Regol is the tier below, and it doubles as the intermediate representation, so nothing is hidden from an author who needs control.
+
+```rust
+contract Token {
+  state {
+    balances: map<address, u64>,
+    total: u64,
+  }
+
+  pub fn transfer(to: address, amount: u64) -> Result<(), Error> {
+    let from = ctx.sender();
+    require(balances[from] >= amount, Error::Insufficient);
+    balances[from] -= amount;
+    balances[to]   += amount;
+    emit Transfer { from, to, amount };
+    Ok(())
+  }
+}
+```
+
+A third language, Kreep, was considered and rejected. The full Trocto specification is the remaining piece of the language work, and it is blocked on the same account-versus-resource question that blocks the state model.

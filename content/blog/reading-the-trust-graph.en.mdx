@@ -1,0 +1,42 @@
+---
+title: "Reading the trust graph"
+excerpt: "Attestation edges are facts, not friendship. How SybilRank, temporal dispersion and the external challenge turn a pile of attestations into a weight — and where the heuristic honestly stops."
+date: "2026-02-17"
+category: "research"
+tag: "Trust graph"
+readingMinutes: 7
+featured: false
+image: "/blog/trust-graph.svg"
+---
+
+A trust graph is easy to draw and hard to trust. The version in Astrolune is built from one primitive only: an attestation — a signed statement, recorded on-chain, that operator A has reason to believe operator B runs a real node. Everything else in this post is arithmetic over those facts.
+
+## Edges are facts
+
+An edge carries no opinion. It says nothing about affection, reputation or stake; it records that two identities attested to each other's existence at a particular height. That narrowness is deliberate — the less a single edge can mean, the less a forged or purchased one is worth.
+
+The graph is recomputed every epoch from scratch. There is no accumulated score to defend and no history to poison slowly: each recompute starts from the raw attestations and rebuilds every number.
+
+## Dispersion discounts orchestration
+
+SybilRank propagates trust from high-degree seeds outward, which alone would reward anyone who collects many edges quickly. The discount for temporal dispersion closes that door: edges whose arrival times cluster into one window contribute far less than the same edges arriving scattered across weeks. Organic growth is messy; farms are punctual.
+
+<PostImage src="/blog/diagram-graph.svg" caption="Attestation edges with three hubs; the dashed line is this epoch's external challenge." />
+
+## The external challenge
+
+Once per epoch the protocol pairs every node with a peer it has no edge to and poses a small verification task. A node whose graph position cannot be explained by its answers loses graph weight — quietly, arithmetically, without any accusation being issued.
+
+This is the piece that keeps the graph honest against its most annoying failure mode: not forged edges, but real edges between nodes that share one owner. Attestations between siblings are facts too; dispersion and challenges exist so they stop being *sufficient* ones.
+
+> A heuristic is not a proof. The specification says so in writing, and so does the consensus page: a patient adversary with a well-spread farm and a proxy budget is priced, not excluded.
+
+## What we do not claim
+
+Three things are recorded as open rather than glossed:
+
+- Non-domination of the whole system is argued, not proven.
+- Dispersion windows are parameters, and parameters can be tuned around.
+- The challenge samples one pairing per epoch per node — enough to make farming expensive, not impossible.
+
+The research goal for the next revision is narrower and reachable: make the *cost* of a surviving farm grow superlinearly with its size. The current dampeners already push in that direction; the open question is whether they can be shown to push fast enough.

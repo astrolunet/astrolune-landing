@@ -1,0 +1,22 @@
+---
+title: "Turning a review rule into a compile error"
+excerpt: "Eleven public headers now compile as C++23 with 172 symbols pinned, so the ten boundary rules are checked by the compiler instead of by hand."
+date: "2026-01-05"
+category: "engineering"
+tag: "Toolchain"
+readingMinutes: 5
+featured: false
+image: "/news/c-cpp-boundary-check.svg"
+---
+
+The C core and the C++23 tooling meet at `include/astrolune`. Ten rules govern what may appear in a header both languages compile, and until now they were followed by review — which means they were followed until someone forgot.
+
+One translation unit that includes every public header and asserts the layout contract turns each of those rules into a compile error. It was the cheapest correctness win left in the tree, and writing it surfaced two real divergences that a human review had walked past twice.
+
+```c
+/* al_bool is not bool: a real bool collapses 2 to 1 */
+static_assert(!std::is_same<al_bool, bool>::value);
+static_assert(AL_CAST(al_bool, 2) == 2);
+```
+
+The check is four small files rather than one, and the reasoning is in the boundary document: each file fails in a different way when a specific rule is broken, and collapsing them would blur which rule caught the mistake.

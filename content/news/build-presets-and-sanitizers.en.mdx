@@ -1,0 +1,16 @@
+---
+title: "Six presets, layering enforced as link edges"
+excerpt: "A dependency violation is a link error, not a review finding. Here is how the build makes the architecture non-negotiable."
+date: "2025-11-20"
+category: "engineering"
+tag: "Build"
+readingMinutes: 4
+featured: false
+image: "/news/build-presets-and-sanitizers.svg"
+---
+
+The tree builds with CMake and ships six configure presets, from a plain debug build to sanitizer and release configurations. The interesting part is not the presets; it is that the layering — `al_base → al_crypto → al_potb` — is expressed as link edges. A module that reaches across a layer it should not fails to link.
+
+That turns an architectural rule into a mechanical one. You cannot merge a change that violates the layering, because it does not build, and the reviewer is spared the job of remembering the diagram.
+
+CI does not exist yet, and the tree says so out loud. Coverage for the VM and state layers is thin for the same honest reason: those layers are present and plausible rather than verified, and the documentation would rather admit that than imply a confidence it has not earned.
