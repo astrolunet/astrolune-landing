@@ -29,7 +29,7 @@ function negotiate(header: string | null) {
   return DEFAULT_LOCALE;
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const first = pathname.split("/")[1];
   if (isLocale(first)) return NextResponse.next();

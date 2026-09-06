@@ -9,9 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@astrolune/id": "file:../astrolune-id",
+    "@astrolune/id": "https://codeload.github.com/astrolunet/astrolune-id/tar.gz/5d604febed9792efa888e7106aac2c9a26005fda",
     "gray-matter": "^4.0.3",
-    "next": "^15.5.23",
+    "next": "^16.3.4",
     "next-mdx-remote": "^6.0.0",
     "react": "19.1.1",
     "react-dom": "19.1.1",
